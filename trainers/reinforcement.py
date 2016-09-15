@@ -55,11 +55,11 @@ class ReinforcementTrainer(object):
         total_err = 0.
         total_reward = 0.
         for i_iter in range(N_ITERS):
-            weights = model.get_weights()
+            weights_id = ray.put(model.get_weights())
             transitions_batch_id_list = []
             reward_batch_id_list = []
             for _ in range(N_PARALLEL_ROLLOUTS):
-                transitions_batch_id, reward_batch_id = do_rollout.remote(weights, num_rollouts=ROLLOUT_BATCH_SIZE, seed=i_iter)
+                transitions_batch_id, reward_batch_id = do_rollout.remote(weights_id, num_rollouts=ROLLOUT_BATCH_SIZE, seed=i_iter)
                 transitions_batch_id_list.append(transitions_batch_id)
                 reward_batch_id_list.append(reward_batch_id)
             transitions_batch_list = ray.get(transitions_batch_id_list)
