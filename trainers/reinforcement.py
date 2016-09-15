@@ -4,16 +4,20 @@ import logging
 import numpy as np
 import tensorflow as tf
 import random
+import ray
 
 #N_ITERS = 10
 N_ITERS = 100
 N_UPDATE = 5000
 MAX_TIMESTEPS = 40
 
-def do_rollout(model, weights, world, seed=0):
+def do_rollout(weights, seed=0):
     np.random.seed(seed)
     random.seed(seed)
     tf.set_random_seed(seed)
+
+    world = ray.reusables.world
+    model = ray.reusables.model
 
     model.set_weights(weights)
 
@@ -40,12 +44,11 @@ class ReinforcementTrainer(object):
         pass
 
     def train(self, model, world):
-        model.prepare(world)
         total_err = 0.
         total_reward = 0.
         for i_iter in range(N_ITERS):
             weights = model.get_weights()
-            transitions, reward = do_rollout(model, weights, world, seed=i_iter)
+            transitions, reward = do_rollout(weights, seed=i_iter)
             model.experience(transitions)
             total_reward += reward
             total_err += model.train_rl()

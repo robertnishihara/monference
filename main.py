@@ -11,14 +11,27 @@ import numpy as np
 import random
 import tensorflow as tf
 import yaml
+import ray
 
 def main():
+    ray.init(start_ray_local=True, num_workers=1)
     config = configure()
-    world = worlds.load(config)
-    model = models.load(config)
+    def world_initializer():
+        return worlds.load(config)
+    def world_reinitializer(world):
+        return world
+    ray.reusables.world = ray.Reusable(world_initializer, world_reinitializer)
+    def model_initializer():
+        model = models.load(config)
+        model.prepare(ray.reusables.world)
+        return model
+    def model_reinitializer(model):
+        return model
+    ray.reusables.model = ray.Reusable(model_initializer, model_reinitializer)
     trainer = trainers.load(config)
     start_time = time.time()
     trainer.train(model, world)
+    trainer.train(ray.reusables.model, ray.reusables.world)
     end_time = time.time()
     print "Training took " + str(end_time - start_time) + " seconds."
 
