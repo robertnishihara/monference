@@ -1,6 +1,6 @@
 import re
 
-class Struct:
+class Struct(object):
     def __init__(self, **entries):
         rec_entries = {}
         for k, v in entries.items():
@@ -35,7 +35,7 @@ class Struct:
     def __repr__(self):
         return "Struct(%r)" % self.__dict__
 
-class Index:
+class Index(object):
     def __init__(self):
         self.contents = dict()
         self.ordered_contents = []
