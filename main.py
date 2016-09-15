@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 
 from misc.util import Struct
+from misc.experience import Transition
 import models
 import trainers
 import worlds
@@ -15,6 +16,11 @@ import ray
 
 def main():
     ray.init(start_ray_local=True, num_workers=1)
+    ray.register_class(Transition)
+    ray.register_class(worlds.lattice.LatticeState)
+    ray.register_class(worlds.lattice.LatticeScenario)
+    ray.register_class(Struct)
+    ray.register_class(set, pickle=True)
     config = configure()
     def world_initializer():
         return worlds.load(config)
@@ -30,7 +36,6 @@ def main():
     ray.reusables.model = ray.Reusable(model_initializer, model_reinitializer)
     trainer = trainers.load(config)
     start_time = time.time()
-    trainer.train(model, world)
     trainer.train(ray.reusables.model, ray.reusables.world)
     end_time = time.time()
     print "Training took " + str(end_time - start_time) + " seconds."

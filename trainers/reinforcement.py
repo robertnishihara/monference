@@ -11,6 +11,7 @@ N_ITERS = 100
 N_UPDATE = 5000
 MAX_TIMESTEPS = 40
 
+@ray.remote(num_return_vals=2)
 def do_rollout(weights, seed=0):
     np.random.seed(seed)
     random.seed(seed)
@@ -48,7 +49,9 @@ class ReinforcementTrainer(object):
         total_reward = 0.
         for i_iter in range(N_ITERS):
             weights = model.get_weights()
-            transitions, reward = do_rollout(weights, seed=i_iter)
+            transitions_id, reward_id = do_rollout.remote(weights, seed=i_iter)
+            transitions = ray.get(transitions_id)
+            reward = ray.get(reward_id)
             model.experience(transitions)
             total_reward += reward
             total_err += model.train_rl()
