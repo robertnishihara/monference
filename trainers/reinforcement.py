@@ -10,10 +10,12 @@ N_ITERS = 100
 N_UPDATE = 5000
 MAX_TIMESTEPS = 40
 
-def do_rollout(model, world, seed=0):
+def do_rollout(model, weights, world, seed=0):
     np.random.seed(seed)
     random.seed(seed)
     tf.set_random_seed(seed)
+
+    model.set_weights(weights)
 
     transitions = []
 
@@ -42,7 +44,8 @@ class ReinforcementTrainer(object):
         total_err = 0.
         total_reward = 0.
         for i_iter in range(N_ITERS):
-            transitions, reward = do_rollout(model, world, seed=i_iter)
+            weights = model.get_weights()
+            transitions, reward = do_rollout(model, weights, world, seed=i_iter)
             model.experience(transitions)
             total_reward += reward
             total_err += model.train_rl()

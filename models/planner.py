@@ -90,6 +90,23 @@ class PlannerModel(object):
 
         self.step_count = 0
 
+        # These nodes are used to set the values of the weights.
+        self.assignment_placeholders = []
+        self.assignment_nodes = []
+        for var in tf.trainable_variables():
+            self.assignment_placeholders.append(tf.placeholder(var.value().dtype, var.get_shape().as_list()))
+            self.assignment_nodes.append(var.assign(self.assignment_placeholders[-1]))
+
+    def get_weights(self):
+        return [var.eval(session=self.session) for var in tf.trainable_variables()]
+
+    def set_weights(self, new_weights):
+        self.session.run(
+            self.assignment_nodes,
+            feed_dict={
+                p: w for p, w in zip(self.assignment_placeholders, new_weights)
+            })
+
     def init(self, state):
         self.current_plan = self.session.run([self.t_plan],
                 feed_dict={
