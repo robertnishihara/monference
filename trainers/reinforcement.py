@@ -10,39 +10,39 @@ N_ITERS = 100
 N_UPDATE = 5000
 MAX_TIMESTEPS = 40
 
+def do_rollout(model, world, seed=0):
+    np.random.seed(seed)
+    random.seed(seed)
+    tf.set_random_seed(seed)
+
+    transitions = []
+
+    scenario = world.sample_scenario()
+    state_before = scenario.init()
+    model.init(state_before)
+
+    total_reward = 0.
+    for t in range(MAX_TIMESTEPS):
+        action = model.act(state_before)
+        reward, state_after, terminate = state_before.step(action)
+        transitions.append(Transition(state_before, action, state_after, reward))
+        total_reward += reward
+        state_before = state_after
+        if terminate:
+            break
+
+    return transitions, total_reward
+
 class ReinforcementTrainer(object):
     def __init__(self, config):
         pass
-
-    def do_rollout(self, model, world, seed=0):
-        np.random.seed(seed)
-        random.seed(seed)
-        tf.set_random_seed(seed)
-
-        transitions = []
-
-        scenario = world.sample_scenario()
-        state_before = scenario.init()
-        model.init(state_before)
-
-        total_reward = 0.
-        for t in range(MAX_TIMESTEPS):
-            action = model.act(state_before)
-            reward, state_after, terminate = state_before.step(action)
-            transitions.append(Transition(state_before, action, state_after, reward))
-            total_reward += reward
-            state_before = state_after
-            if terminate:
-                break
-
-        return transitions, total_reward
 
     def train(self, model, world):
         model.prepare(world)
         total_err = 0.
         total_reward = 0.
         for i_iter in range(N_ITERS):
-            transitions, reward = self.do_rollout(model, world, seed=i_iter)
+            transitions, reward = do_rollout(model, world, seed=i_iter)
             model.experience(transitions)
             total_reward += reward
             total_err += model.train_rl()
