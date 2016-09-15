@@ -5,6 +5,7 @@ import models
 import trainers
 import worlds
 
+import time
 import logging
 import numpy as np
 import random
@@ -16,7 +17,10 @@ def main():
     world = worlds.load(config)
     model = models.load(config)
     trainer = trainers.load(config)
+    start_time = time.time()
     trainer.train(model, world)
+    end_time = time.time()
+    print "Training took " + str(end_time - start_time) + " seconds."
 
 def configure():
     np.random.seed(0)

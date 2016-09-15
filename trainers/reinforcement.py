@@ -46,6 +46,7 @@ class ReinforcementTrainer(object):
             model.experience(transitions)
             total_reward += reward
             total_err += model.train_rl()
+            print "reward " + str(total_reward)
 
             if (i_iter + 1) % N_UPDATE == 0:
                 logging.info("sample transitions: " + \
