@@ -3,8 +3,10 @@ from misc.experience import Transition
 import logging
 import numpy as np
 import tensorflow as tf
+import random
 
-N_ITERS = 1000000
+#N_ITERS = 10
+N_ITERS = 100
 N_UPDATE = 5000
 MAX_TIMESTEPS = 40
 
@@ -12,7 +14,11 @@ class ReinforcementTrainer(object):
     def __init__(self, config):
         pass
 
-    def do_rollout(self, model, world):
+    def do_rollout(self, model, world, seed=0):
+        np.random.seed(seed)
+        random.seed(seed)
+        tf.set_random_seed(seed)
+
         transitions = []
 
         scenario = world.sample_scenario()
@@ -36,7 +42,7 @@ class ReinforcementTrainer(object):
         total_err = 0.
         total_reward = 0.
         for i_iter in range(N_ITERS):
-            transitions, reward = self.do_rollout(model, world)
+            transitions, reward = self.do_rollout(model, world, seed=i_iter)
             model.experience(transitions)
             total_reward += reward
             total_err += model.train_rl()
