@@ -15,7 +15,7 @@ import yaml
 import ray
 
 def main():
-    ray.init(start_ray_local=True, num_workers=10)
+    ray.init(start_ray_local=True, num_workers=5)
     ray.register_class(Transition)
     ray.register_class(worlds.lattice.LatticeState)
     ray.register_class(worlds.lattice.LatticeScenario)
