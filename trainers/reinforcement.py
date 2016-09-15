@@ -6,10 +6,10 @@ import tensorflow as tf
 import random
 import ray
 
-#N_ITERS = 10
-N_ITERS = 100
+N_ITERS = 20
 N_UPDATE = 5000
 MAX_TIMESTEPS = 40
+ROLLOUT_BATCH_SIZE = 10
 
 @ray.remote(num_return_vals=2)
 def do_rollout(weights, seed=0):
@@ -49,11 +49,17 @@ class ReinforcementTrainer(object):
         total_reward = 0.
         for i_iter in range(N_ITERS):
             weights = model.get_weights()
-            transitions_id, reward_id = do_rollout.remote(weights, seed=i_iter)
-            transitions = ray.get(transitions_id)
-            reward = ray.get(reward_id)
-            model.experience(transitions)
-            total_reward += reward
+            transitions_id_list = []
+            reward_id_list = []
+            for _ in range(ROLLOUT_BATCH_SIZE):
+                transitions_id, reward_id = do_rollout.remote(weights, seed=i_iter)
+                transitions_id_list.append(transitions_id)
+                reward_id_list.append(reward_id)
+            transitions_list = ray.get(transitions_id_list)
+            reward_list = ray.get(reward_id_list)
+            for transitions in transitions_list:
+                model.experience(transitions)
+            total_reward += sum(reward_list)
             total_err += model.train_rl()
             print "reward " + str(total_reward)
 
