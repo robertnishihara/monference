@@ -43,8 +43,8 @@ class RecurrentModel(object):
                 proj_cell = tf.nn.rnn_cell.OutputProjectionWrapper(cell, world.n_actions)
 
                 # TODO input projection
-                t_ep_scores, _ = tf.nn.dynamic_rnn(proj_cell, t_ep_feats, 
-                        sequence_length=t_ep_l, initial_state=t_ep_rnn_state, 
+                t_ep_scores, _ = tf.nn.dynamic_rnn(proj_cell, t_ep_feats,
+                        sequence_length=t_ep_l, initial_state=t_ep_rnn_state,
                         dtype=tf.float32, scope=vs)
                 vs.reuse_variables()
                 t_scores, t_next_rnn_state = \
@@ -171,7 +171,7 @@ class RecurrentModel(object):
             self.t_loss_mask: loss_mask
         }
 
-        _, err = self.session.run([self.t_train_rl_op, self.t_err_rl], 
+        _, err = self.session.run([self.t_train_rl_op, self.t_err_rl],
                 feed_dict=feed_dict)
 
         self.step_count += 1
@@ -214,4 +214,3 @@ class RecurrentModel(object):
         _, err = self.session.run([self.t_train_im_op, self.t_err_im], feed_dict=feed_dict)
 
         return err
-

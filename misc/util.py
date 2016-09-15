@@ -100,4 +100,3 @@ FEXP_RE = re.compile(r"(.*)\[(.*)\]")
 def parse_fexp(fexp):
     m = FEXP_RE.match(fexp)
     return (m.group(1), m.group(2))
-

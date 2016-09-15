@@ -25,9 +25,9 @@ def configure():
     with open("config.yaml") as config_f:
         config = Struct(**yaml.load(config_f))
     log_name = "logs/%s-%d_%s-%d_%s.log" % (
-            config.world.name, 
+            config.world.name,
             config.world.size,
-            config.model.name, 
+            config.model.name,
             config.model.depth,
             config.trainer.name)
     logging.basicConfig(filename=log_name, level=logging.DEBUG,

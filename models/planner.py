@@ -33,7 +33,7 @@ class PlannerModel(object):
                 #cell = tf.nn.rnn_cell.GRUCell(N_HIDDEN)
 
                 # TODO input projection
-                _, t_plan = tf.nn.rnn(cell, [t_init_feats] * self.config.depth, 
+                _, t_plan = tf.nn.rnn(cell, [t_init_feats] * self.config.depth,
                         dtype=tf.float32, scope=vs)
                 t_plan = t_plan.h
 

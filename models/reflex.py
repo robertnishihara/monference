@@ -85,7 +85,7 @@ class ReflexModel(object):
         if randomize and np.random.random() < eps:
             action = np.random.randint(self.n_actions)
         else:
-            preds = self.session.run([self.t_scores], 
+            preds = self.session.run([self.t_scores],
                     feed_dict={
                         self.t_feats: [state.features()],
                     })[0][0, :]
